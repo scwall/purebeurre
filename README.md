@@ -28,6 +28,27 @@ Use the terminal and launch analyze.py
 
 For execute the unit tests, launch analyse_test.py
 ```
+## How to use "Pure beurre"
+At the launch of the application:
+
+You will have the choice to go through the food selection, or find my substitute foods.
+
+In the food selection function you will have to:
+
+- Selecting the food category
+
+To select a food category, you will be given several proposals, you only need to enter the number of the category you have chosen.
+ 
+- Select the food of your choice
+
+**Several proposals**  will be associated with one number. you just need to enter the number
+
+The program will then propose you a substitute, its description and a store where you can buy it, a **link** will be displayed to get more information about the food in question
+
+You will then have the possibility to save your choice and do a new search or return to the main menu to consult for example to find your saved substitute foods, to start a new search, or simply to leave the menu. 
+
+
+
 
 ## Built With
 
