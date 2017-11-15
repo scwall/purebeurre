@@ -3,7 +3,7 @@ Software for the company "Pur beurre"
 
 ## Getting Started
 
-The software will analitic a database for compare and  find, some products of substitution healthier at than user request.
+The software will analitics a database for compare and  find, some products of substitution healthier at than user request.
 
 ### Prerequisites
 
