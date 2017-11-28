@@ -1,10 +1,11 @@
-import pymysql.cursors
+import pymysql
 import json
+from packages.recovery.recovery import recovery
 from packages.road_os_path import road_os_path
 
 with open(road_os_path("packages","connection_databases.json")) as f:
     info_connection = json.load(f)
-
+connection = ""
 try:
     connection = pymysql.connect( host= info_connection['host'],
                                  user=info_connection['user'],
@@ -35,3 +36,11 @@ except:
             connection_complete = False
         except:
             pass
+
+cursor = connection.cursor()
+cursor.execute("SELECT COUNT(DISTINCT `name`) FROM `Products`")
+number_products = cursor.fetchone()
+
+if number_products['COUNT(DISTINCT `name`)'] != 0:
+    recovery(cursor,connection)
+
