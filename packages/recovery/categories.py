@@ -1,5 +1,5 @@
 class Categories:
-    def __init__(self,cursor,connection,name):
+    def __init__(self, cursor, connection, name):
         self.name = name
         self.cursor = cursor
         self.connection = connection

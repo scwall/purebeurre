@@ -1,6 +1,5 @@
-
 class Products:
-    def __init__(self,cursor,connection,name,description,nutrition_grade,shop,link_http):
+    def __init__(self, cursor, connection, name, description, nutrition_grade, shop, link_http):
         self.cursor = cursor
         self.connection = connection
         self.name = name
@@ -11,6 +10,5 @@ class Products:
 
     def insert_databases(self):
         sql = "INSERT INTO `Products` (`name`,`description`,`nutrition_grade`,`shop`,`link_http`) VALUES (%s, %s, %s, %s, %s) "
-        self.cursor.execute(sql, (self.name,self.description,self.nutrition_grade,self.shop,self.link_http))
+        self.cursor.execute(sql, (self.name, self.description, self.nutrition_grade, self.shop, self.link_http))
         self.connection.commit()
-
