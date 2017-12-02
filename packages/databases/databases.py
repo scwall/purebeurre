@@ -8,7 +8,7 @@ from packages.road_os_path import road_os_path
 class Database:
     def __init__(self):
 
-        self._result_connection = {"error": ""}
+        self.result_connection = {"error": ""}
         self.file = open(road_os_path("packages", "databases", "database_info"), 'br')
 
         self.info_connection = pickle.Unpickler(self.file)
@@ -17,9 +17,9 @@ class Database:
             self.file.close()
         except:
             self.file.close()
-            self._result_connection["error"] = "first"
+            self.result_connection["error"] = "first"
 
-        if self._result_connection["error"] != "first":
+        if self.result_connection["error"] != "first":
             self.host = self.info_connection["host"]
             self.user = self.info_connection["user"]
             self.password = self.info_connection["password"]
@@ -39,21 +39,22 @@ class Database:
                                               charset=self.charset,
                                               port=self.port,
                                               cursorclass=pymysql.cursors.DictCursor)
-            self._result_connection["error"] = False
+            self.result_connection["error"] = False
             return (self.connection)
         except pymysql.err.MySQLError as exception:
             if str(exception)[1:5] == str(1045):
-                self._result_connection["error"] = "password"
+                self.result_connection["error"] = "password"
             if str(exception)[1:5] == str(1698):
-                self._result_connection["error"] = "username"
+                self.result_connection["error"] = "username"
             if str(exception)[1:5] == str(1044):
-                self._result_connection["error"] = "database"
+                self.result_connection["error"] = "database"
             if str(exception)[1:5] == str(2003):
-                self._result_connection["error"] = "hostname or password"
+                self.result_connection["error"] = "hostname or password"
 
-    def _get_result_connection(self):
+    @property
+    def get_result_connection(self):
 
-        return self._result_connection
+        return self.result_connection
 
     def add_parameter(self, dic_parameter):
         self.file = open(road_os_path("packages", "databases", "database_info"), 'bw')
@@ -96,5 +97,7 @@ class Database:
         column = ("".join(insert.keys()))
         cursor.execute(
             "SELECT " + str(",".join(insert[column].values())) + " FROM " + str("".join(insert.keys())))
-        self.connection.commit()
-        self.connection.close()
+        result = cursor.fetchone()
+        cursor.close()
+        connection.close()
+        return result
