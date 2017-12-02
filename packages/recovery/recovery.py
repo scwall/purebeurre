@@ -27,6 +27,7 @@ def recovery(cursor, connection):
                 final_page = False
             for product in products_dic["products"]:
                 try:
+
                     print(product["product_name_fr"])
                     obj_product = Products(cursor, connection, product["product_name_fr"], product["generic_name"],
                                            product["nutrition_grade_fr"], product["stores"], product["url"])
@@ -34,5 +35,4 @@ def recovery(cursor, connection):
 
                 except:
                     pass
-
-            number_page += 1
+                number_page += 1
