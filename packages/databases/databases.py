@@ -43,13 +43,13 @@ class Database:
             self.db = self.info_connection["db"]
             self.charset = self.info_connection["charset"]
             self.port = self.info_connection["port"]
-            self.connection()
+            self.connect_databases()
             self.close_databases()
 
-    def connection(self):
+    def connect_databases(self):
         """
-        :connect: pymsql.connect creates the object "connect" for database connection
-        :return: Returns a dictionary with the type of error that prevents the connection. Either False if there is no error
+        :connect: pymsql.connect creates the object "connect" for database connect_databases
+        :return: Returns a dictionary with the type of error that prevents the connect_databases. Either False if there is no error
         :exception: add string in the dictionary "result_connection" with a value that I get back to give the error type
         :rtype: dict | dict
         """
@@ -79,7 +79,7 @@ class Database:
 
         """
 
-        :return: returns the response of the encapsulated connection test
+        :return: returns the response of the encapsulated connect_databases test
         :rtype: dict
         """
         return self.result_connection
@@ -89,7 +89,7 @@ class Database:
 
         :file: opens the "database_info" file in binary and write mode and creates the object "file".
         :info_connection: retrieves keys and values to create the "info_connection" dictionary
-        :connection: Test the connection to see if the parameters are correct
+        :connect_databases: Test the connect_databases to see if the parameters are correct
 
         """
         self.file = open(road_os_path("packages", "databases", "database_info"), 'bw')
@@ -109,7 +109,7 @@ class Database:
         self.info_connection = {"host": self.host, "user": self.user, "password": self.password, "db": self.db,
                                 "charset": self.charset,
                                 "port": self.port}
-        self.connection()
+        self.connect_databases()
         if self.result_connection["error"] == False:
             add_info_connection = pickle.Pickler(self.file)
             add_info_connection.dump(self.info_connection)
@@ -122,14 +122,8 @@ class Database:
         :type insert: sql
         """
         cursor = self.connect.cursor()
-        column = ("".join(insert.keys()))
-        print("INSERT INTO " + str("".join(insert.keys())) + " (" + str(
-            ",".join(insert[column].keys())) + ")" + " VALUES " + "(" + str(
-            ",".join(insert[column].values())) + ")")
-        cursor.execute(
-            "INSERT INTO " + str("".join(insert.keys())) + " (" + str(
-                ",".join(insert[column].keys())) + ")" + " VALUES " + "(" + str(
-                ",".join(insert[column].values())) + ")")
+
+        cursor.execute(insert)
         self.connect.commit()
         cursor.close()
 
@@ -143,9 +137,8 @@ class Database:
         """
         cursor = self.connect.cursor()
 
-        column = ("".join(insert.keys()))
-        cursor.execute(
-            "SELECT " + str(",".join(insert[column].values())) + " FROM " + str("".join(insert.keys())))
+        cursor.execute(insert)
+
         result = cursor.fetchone()
         cursor.close()
         return result

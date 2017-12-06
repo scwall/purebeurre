@@ -3,9 +3,9 @@ from packages.databases.databases import Database
 
 def add_information_connection():
     """
-    :connection: Creation of databases object with connection test
-    :info_connection: Creation of the dictionary which will retrieve the parameters for the connection to the database
-    :return: Returns that the connection has been successfully established to the database
+    :connect_databases: Creation of databases object with connect_databases test
+    :info_connection: Creation of the dictionary which will retrieve the parameters for the connect_databases to the database
+    :return: Returns that the connect_databases has been successfully established to the database
     """
     info_connection = {}
     connection = Database()
@@ -26,4 +26,4 @@ def add_information_connection():
             "error"] == "first":
             info_connection["port"] = int(input("enter the port used (default=3306): ") or 3306)
         connection.add_parameter(info_connection)
-    return "connection established"
+    return "connect_databases established"
