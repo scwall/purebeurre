@@ -84,28 +84,28 @@ class Database:
         """
         return self.result_connection
 
-    def add_parameter(self, dic_parameter):
+    def add_parameter(self, dic_parameters):
         """
 
-        :file: opens the "database_info" file in binary and write mode and creates the object "file".
-        :info_connection: retrieves keys and values to create the "info_connection" dictionary
-        :connect_databases: Test the connect_databases to see if the parameters are correct
-
+        :param dic_parameters:
+        :type dic_parameters:
+        :return:
+        :rtype:
         """
         self.file = open(road_os_path("packages", "databases", "database_info"), 'bw')
         self.info_connection = {}
-        if "host" in dic_parameter:
-            self.host = dic_parameter["host"]
-        if "user" in dic_parameter:
-            self.user = dic_parameter["user"]
-        if "password" in dic_parameter:
-            self.password = dic_parameter["password"]
-        if "db" in dic_parameter:
-            self.db = dic_parameter["db"]
-        if "charset" in dic_parameter:
-            self.charset = dic_parameter["charset"]
-        if "port" in dic_parameter:
-            self.port = dic_parameter["port"]
+        if "host" in dic_parameters:
+            self.host = dic_parameters["host"]
+        if "user" in dic_parameters:
+            self.user = dic_parameters["user"]
+        if "password" in dic_parameters:
+            self.password = dic_parameters["password"]
+        if "db" in dic_parameters:
+            self.db = dic_parameters["db"]
+        if "charset" in dic_parameters:
+            self.charset = dic_parameters["charset"]
+        if "port" in dic_parameters:
+            self.port = dic_parameters["port"]
         self.info_connection = {"host": self.host, "user": self.user, "password": self.password, "db": self.db,
                                 "charset": self.charset,
                                 "port": self.port}
@@ -116,18 +116,19 @@ class Database:
             self.file.close()
 
     def insert_databases(self, insert):
-
-        """
-        :param insert: Insert values retrieved from a dictionary into the selected table
-        :type insert: sql
-        """
         cursor = self.connect.cursor()
+        content = "INSERT INTO " + insert.get_name_table + " ("
+        content2 = " VALUES " + "("
 
-        cursor.execute(insert)
+        for column, values in insert.get_object_structure.items():
+            content = content + column + ","
+            content2 = content2 + '"' + values + '"' + ","
+        result = content[:(len(content) - 1)] + ")" + content2[:(len(content2) - 1)] + ")"
+        cursor.execute(result)
         self.connect.commit()
         cursor.close()
 
-    def select_databases(self, insert):
+    def select_databases(self, table, column, args=None):
         """
         :cursor: creates an object to execute the SELECT command in the database
         :param insert: selects the table and column in the database
@@ -136,12 +137,19 @@ class Database:
         :rtype: dict
         """
         cursor = self.connect.cursor()
+        content = " FROM " + table +" "
+        content2 = "SELECT "
 
-        cursor.execute(insert)
-
-        result = cursor.fetchone()
+        for values in column:
+            content2 = content2 + values + ","
+        result = content2[:(len(content2) - 1)] + content
+        if args is not None:
+            result = result + args
+        cursor.execute(result)
+        return_result = cursor.fetchone()
         cursor.close()
-        return result
+        return return_result
+
 
     def close_databases(self):
         self.connect.close()
