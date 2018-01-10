@@ -1,11 +1,15 @@
+# coding: utf8
 import pickle
 
 import pymysql
-
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from packages.databases import base
 from packages.road_os_path import road_os_path
 
 
-class Database:
+class Database():
     """
     During the creation of the object there will be a test to know if the database exists or if it must be created.
     if it doesn't exist it will return a string with the answer "first". Otherwise it will open and a test to the
@@ -63,6 +67,14 @@ class Database:
                                            port=self.port,
                                            cursorclass=pymysql.cursors.DictCursor)
             self.result_connection["error"] = False
+            self.connect.close()
+            self.engine = create_engine(
+                "mysql+pymysql://{username}:{password}@{host}:{port}/{dbName}?charset=utf8&use_unicode=1"
+                    .format(username=self.user, password=self.password, host=self.host, port=self.port, dbName=self.db))
+            self.Base = base.Base
+            self.Base.metadata.bind = self.engine
+            DBSession = sessionmaker(bind=self.engine)
+            self.connect = DBSession()
             return (self.connect)
         except pymysql.err.MySQLError as exception:
             if str(exception)[1:5] == str(1045):
@@ -116,19 +128,12 @@ class Database:
             self.file.close()
 
     def insert_databases(self, insert):
-        cursor = self.connect.cursor()
-        content = "INSERT INTO " + insert.get_name_table + " ("
-        content2 = " VALUES " + "("
-
-        for column, values in insert.get_object_structure.items():
-            content = content + column + ","
-            content2 = content2 + '"' + values + '"' + ","
-        result = content[:(len(content) - 1)] + ")" + content2[:(len(content2) - 1)] + ")"
-        cursor.execute(result)
+        self.connect.add(insert)
         self.connect.commit()
-        cursor.close()
 
-    def select_databases(self, table, column, args=None):
+        self.connect.close()
+
+    def select_databases(self,table,cmd):
         """
         :cursor: creates an object to execute the SELECT command in the database
         :param insert: selects the table and column in the database
@@ -136,20 +141,19 @@ class Database:
         :return: recovers a dictionary of columns and values in database
         :rtype: dict
         """
-        cursor = self.connect.cursor()
-        content = " FROM " + table +" "
-        content2 = "SELECT "
+        global test
+        if cmd == "test":
+            test = self.connect.query(Categories).order_by(Categories.id)[1:4]
+        if cmd == "all":
 
-        for values in column:
-            content2 = content2 + values + ","
-        result = content2[:(len(content2) - 1)] + content
-        if args is not None:
-            result = result + args
-        cursor.execute(result)
-        return_result = cursor.fetchone()
-        cursor.close()
-        return return_result
+            test = self.connect.query(table).all()
+            self.connect.close()
+
+        return test
+
 
 
     def close_databases(self):
         self.connect.close()
+
+
