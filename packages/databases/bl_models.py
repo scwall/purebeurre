@@ -53,7 +53,7 @@ class ProductsBL(ConnectionBL):
 
     @classmethod
     def get_product_on_category(cls, id, start, end):
-        return cls.connection.connect.query(Products).filter(Categories.id == str(id)).order_by(Products.id)[start:end]
+        return cls.connection.connect.query(Products).filter(Products.id == Link_category_product.product_id).filter(Link_category_product.category_id == 5)[start:end]
 
     @classmethod
     def get_product_id(cls, id):
@@ -61,7 +61,7 @@ class ProductsBL(ConnectionBL):
 
     @classmethod
     def get_product_best_grade(cls,id):
-        return cls.connection.connect.query(Products).filter(Products.nutrition_grade == "a",Link_category_product.category_id == str(id)).all()
+        return cls.connection.connect.query(Products).filter(Products.id == Link_category_product.product_id).filter(Link_category_product.category_id == 5).filter(Products.nutrition_grade == "a").all()
 
     @classmethod
     def update_product(cls, id):

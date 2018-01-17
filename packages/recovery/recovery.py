@@ -4,7 +4,7 @@ from multiprocessing import Pool
 import multiprocessing
 import requests
 
-from packages.databases.bl_models import CategoriesBL
+from packages.databases.bl_models import CategoriesBL, ProductsBL, ConnectionBL
 from packages.databases.models import Categories, Products, Link_category_product
 from packages.databases.add_information_function import add_information_connection
 from packages.databases.databases import Database
@@ -34,7 +34,7 @@ r = requests.get("https://fr.openfoodfacts.org/categories.json")
 categories_dic = r.json()
 connection = Database()
 connection.connect_databases()
-CategoriesBL.connection = connection
+ConnectionBL.set_connection(connection)
 # for categories in categories_dic['tags']:
 #     if int(categories['products']) > 10 or str(categories['name']).lower() != str(categories['id']).lower():
 #         categories_add = Categories(name=categories['name'], link_http=categories['url'], id_category=categories['id'])
@@ -42,7 +42,7 @@ CategoriesBL.connection = connection
 #
 # connection.connect.commit()
 
-# categories_all = connection.select_databases(Categories, "all")
+#
 categories_all = CategoriesBL.get_categories()
 connection.connect.expunge_all()
 # recovery the products
@@ -56,7 +56,7 @@ while final_page is True:
         if 'nutrition_grades' in product.keys() \
                 and 'product_name_fr' in product.keys() \
                 and 'categories_tags' in product.keys() \
-                and len(product['product_name_fr']) >= 0 \
+                and len(product['product_name_fr']) >= 1 \
                 and len(product['product_name_fr']) <= 100:
             try:
                 article = Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
@@ -67,7 +67,7 @@ while final_page is True:
                 continue
 
             connection.connect.add(article)
-
+            connection.connect.commit()
     print(number_page)
     number_page += 1
 connection.connect.commit()

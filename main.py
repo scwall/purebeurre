@@ -43,6 +43,7 @@ while categories_effective is True:
         category_id = command
         while products_effective is True:
             products = ProductsBL.get_product_on_category(category_id, *products_numbers_display)
+            #print(products)
             print("Voici la liste des produits de la catégorie " + ' " ' + str(
                 CategoriesBL.get_categorie_id(category_id).name) + ' " ')
 
@@ -59,11 +60,12 @@ while categories_effective is True:
                 print("Nom du produit " + ProductsBL.get_product_id(int(command)).name)
                 print("Description du produit " + ProductsBL.get_product_id(int(command)).description)
                 print("Grade de nutrition " + ProductsBL.get_product_id(int(command)).nutrition_grade)
-                print("lien https du produit " + ProductsBL.get_product_id(int(command)).link_http)
+                print("Lien https du produit " + ProductsBL.get_product_id(int(command)).link_http)
             command = input("Voulez vous trouver des  meilleurs alternatives \n"
                             "dans cette catégorie à votre produit ?")
             if command.lower() == "oui":
                 test =  ProductsBL.get_product_best_grade(category_id)
+                print(test)
                 for test in test:
                     print(test.name)
 
