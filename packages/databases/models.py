@@ -1,6 +1,6 @@
 # coding: utf8
 
-from sqlalchemy import Column, ForeignKey, INTEGER
+from sqlalchemy import Column, ForeignKey, INTEGER, DATETIME, func
 from sqlalchemy import VARCHAR, TEXT, CHAR
 from sqlalchemy.orm import relationship
 
@@ -36,3 +36,10 @@ class Link_category_product(base.Base):
 
     category = relationship("Categories", backref="categories_associations")
     product = relationship("Products", backref="products_associations")
+
+class SaveProducts(base.Base):
+    __tablename__ ='save_products'
+    id = Column(INTEGER, primary_key=True)
+    id_product = Column(INTEGER,ForeignKey('products.id'), nullable=False)
+    date =Column(DATETIME, default=func.now())
+    save_product = relationship("Products", backref=("save_products_associations"),uselist=False)
