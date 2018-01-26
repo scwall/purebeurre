@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from packages.databases import base
-from packages.road_os_path import road_os_path
+from packages.functions import road_os_path
 
 
 class Database():
@@ -126,32 +126,6 @@ class Database():
             add_info_connection = pickle.Pickler(self.file)
             add_info_connection.dump(self.info_connection)
             self.file.close()
-
-    def insert_databases(self, insert):
-        self.connect.add(insert)
-        self.connect.commit()
-
-        self.connect.close()
-
-    def select_databases(self,table,cmd):
-        """
-        :cursor: creates an object to execute the SELECT command in the database
-        :param insert: selects the table and column in the database
-        :type insert: sql
-        :return: recovers a dictionary of columns and values in database
-        :rtype: dict
-        """
-        global test
-        if cmd == "test":
-            test = self.connect.query(Categories).order_by(Categories.id)[1:4]
-        if cmd == "all":
-
-            test = self.connect.query(table).all()
-            self.connect.close()
-
-        return test
-
-
 
     def close_databases(self):
         self.connect.close()

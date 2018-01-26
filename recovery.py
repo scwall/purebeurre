@@ -1,11 +1,16 @@
 # coding: utf8
+from multiprocessing import Pool
 
+import multiprocessing
 import requests
-
+import os
+from packages.databases.query_models import CategoriesQuery, ProductsQuery, ConnectionQuery
+from packages.databases.models import Categories, Products, Link_category_product
 from packages.databases.add_information_function import add_information_connection
 from packages.databases.databases import Database
-from packages.databases.models import Categories, Products
-from packages.databases.query_models import CategoriesQuery, ConnectionQuery
+
+# from packages.products import Products
+# from packages.link_categories_products import Link_category_product
 from packages.functions import cls, percentage_calculation
 
 print("Bienvenue dans la récupération des données du site openfoodfact\n"
@@ -46,8 +51,7 @@ if command.lower() == "o":
     total_count = categories_dic['count']
     for categories in categories_dic['tags']:
         if int(categories['products']) > 10 or str(categories['name']).lower() != str(categories['id']).lower():
-            categories_add = Categories(name=categories['name'], link_http=categories['url'],
-                                        id_category=categories['id'])
+            categories_add = Categories(name=categories['name'], link_http=categories['url'], id_category=categories['id'])
             connection.connect.add(categories_add)
             count += 1
         else:
@@ -67,8 +71,7 @@ if command.lower() == "o":
     final_page = True
 
     while final_page is True:
-        link_page = (lambda url, number_pages: str(url) + "/" + str(number_pages) + ".json")(
-            "https://fr.openfoodfacts.org", number_page)
+        link_page = (lambda url,number_page: str(url) + "/" + str(number_page) + ".json")("https://fr.openfoodfacts.org", number_page)
         products_dic = requests.get(link_page).json()
         if products_dic['count']:
             total_count = products_dic['count']
@@ -78,7 +81,8 @@ if command.lower() == "o":
             if 'nutrition_grades' in product.keys() \
                     and 'product_name_fr' in product.keys() \
                     and 'categories_tags' in product.keys() \
-                    and 1 <= len(product['product_name_fr']) <= 100:
+                    and len(product['product_name_fr']) >= 1 \
+                    and len(product['product_name_fr']) <= 100:
                 try:
                     article = Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
                                        nutrition_grade=product['nutrition_grades'], shop=product['stores'],
@@ -90,7 +94,7 @@ if command.lower() == "o":
                 connection.connect.add(article)
             count += 1
         cls()
-        print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)")
+        print("Recuperation des produits, ",percentage_calculation(count,total_count),"%"," d'effectué(s)")
 
         number_page += 1
     connection.connect.commit()
