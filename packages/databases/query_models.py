@@ -32,8 +32,8 @@ class CategoriesQuery(ConnectionQuery):
         return cls.connection.connect.query(Categories).filter(Products.id == str(id)).all()
 
     @classmethod
-    def update_category(cls, id):
-        pass
+    def get_categories_count(cls):
+        return cls.connection.connect.query(Categories).count()
 
     @classmethod
     def delete_category(cls, id):
@@ -70,10 +70,6 @@ class ProductsQuery(ConnectionQuery):
             SaveProducts.id_product == Products.id)[start:end]
 
     @classmethod
-    def update_product(cls, id):
-        pass
-
-    @classmethod
     def delete_product(cls, id):
         pass
 
@@ -83,10 +79,6 @@ class SaveProductsQuery(ConnectionQuery):
     def get_save_product_numbers(cls, start, end):
         return cls.connection.connect.query(SaveProducts).order_by(SaveProducts.date).filter(
             SaveProducts.id_product == Products.id)[start:end]
-
-    @classmethod
-    def update_product(cls, id):
-        pass
 
     @classmethod
     def delete_product(cls, id):

@@ -2,7 +2,7 @@
 import pickle
 
 import pymysql
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from packages.databases import base
@@ -126,7 +126,17 @@ class Database():
             add_info_connection = pickle.Pickler(self.file)
             add_info_connection.dump(self.info_connection)
             self.file.close()
+    def if_exist_table(self,*list_tables):
+        check_is_true = []
+        for table in list_tables:
+            check_is_true.append(self.engine.dialect.has_table(self.engine,table))
+        return check_is_true
 
+    def drop_table(self):
+        self.Base.metadata.drop_all(self.engine)
+
+    def create_table(self):
+        self.Base.metadata.create_all(self.engine)
     def close_databases(self):
         self.connect.close()
 

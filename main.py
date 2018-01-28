@@ -1,5 +1,5 @@
 import time
-
+from sqlalchemy import func
 from packages.databases.add_information_function import add_information_connection
 from packages.databases.query_models import CategoriesQuery, ProductsQuery, ConnectionQuery, SaveProductsQuery
 from packages.databases.databases import Database
@@ -19,7 +19,8 @@ products_quality_effective = True
 categories_numbers_display = [0, 30]
 products_numbers_display = [0, 30]
 save_numbers_display = [0, 30]
-command_list = ["!#","!>","!<","!1","!0"]
+command_list = ["!#","!>","!<","!1","!0","!@"]
+
 while main_menu is True:
     print("Bienvenue cette application qui va vous permettre de trouver\n"
           "une alternative à un produit sélectionné")

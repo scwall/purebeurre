@@ -6,7 +6,7 @@ from packages.databases.add_information_function import add_information_connecti
 from packages.databases.databases import Database
 from packages.databases.models import Categories, Products
 from packages.databases.query_models import CategoriesQuery, ConnectionQuery
-from packages.functions import cls, percentage_calculation
+from packages.functions import clr, percentage_calculation
 
 print("Bienvenue dans la récupération des données du site openfoodfact\n"
       "La récupération des catégories et des produits peut prendre plusieurs heures\n"
@@ -15,7 +15,7 @@ print("Bienvenue dans la récupération des données du site openfoodfact\n"
       )
 command = input("> ")
 if command.lower() == "o":
-    cls()
+    clr()
     print("Connexion à la base de données")
     connection = Database()
     if connection.result_connection["error"] is not False:
@@ -53,10 +53,10 @@ if command.lower() == "o":
         else:
             count += 1
         print("Récuperation des catégories, ", percentage_calculation(count, total_count), "%", " d'effectué(s)")
-        cls()
+        clr()
     connection.connect.commit()
     print("Récupération des catégories réussies")
-    cls()
+    clr()
     categories_all = CategoriesQuery.get_categories()
     connection.connect.expunge_all()
 
@@ -89,7 +89,7 @@ if command.lower() == "o":
 
                 connection.connect.add(article)
             count += 1
-        cls()
+        clr()
         print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)")
 
         number_page += 1

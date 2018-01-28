@@ -29,6 +29,7 @@ if command.lower() == "o":
     if False in connection.if_exist_table("categories", "link_category_product", "products", "save_products"):
         print("Vous n'avez pas lancé le script de création de la base de données\n ou une table a été supprimée\n")
         print("Suppression des tables")
+        connection.connect.close()
         connection.drop_table()
         print("Création des tables")
         connection.create_table()
@@ -42,14 +43,15 @@ if command.lower() == "o":
             print(
                 "Si l'application à planté ou qu'il y a eu une erreur "
                 "et que vous voulez réexecuter la récupération, "
-                "veuillez confirmer par 'OUI' Pour recommencer depuis le début ou 'NON' (en majuscule) pour annuler\n"
-                "'RESUME' pour reprendre la ou le programme c'est arrêté")
+                "veuillez confirmer par 'OUI' Pour recommencer depuis le début ou 'NON' (en majuscule) pour annuler\n")
 
             command = input("> ")
             if command == 'OUI':
-                connection.connect.expunge_all()
+                connection.connect.close()
                 connection.drop_table()
                 connection.create_table()
+                already_saved_boucle = False
+
             if command == 'NON':
                 sys.exit("Annulation")
 
@@ -61,7 +63,7 @@ if command.lower() == "o":
     categories_dic = categories_json.json()
     total_count = categories_dic['count']
     for categories in categories_dic['tags']:
-        if int(categories['products']) > 10 or str(categories['name']).lower() != str(categories['id']).lower():
+        if int(categories['products']) > 10 and len(categories['name']) < 150 and str(categories['name']).lower() != str(categories['id']).lower():
             categories_add = Categories(name=categories['name'], link_http=categories['url'],
                                         id_category=categories['id'])
             connection.connect.add(categories_add)
@@ -115,11 +117,14 @@ if command.lower() == "o":
                     continue
 
             count += 1
+        connection.connect.commit()
+        print(number_page)
         clr()
         print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)")
 
         number_page += 1
     connection.connect.commit()
+
     print("Récupération des produits réussi\n"""
           "Vous avez récupéré la totalité des produits et catégories\n"
           "Vous pouvez utiliser le programme principal pour consulter les produits"
