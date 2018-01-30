@@ -10,7 +10,7 @@ from packages.databases.models import Categories, Products
 from packages.databases.query_models import CategoriesQuery, ConnectionQuery
 from packages.functions import clr, percentage_calculation
 
-clr()
+
 print("Bienvenue dans la récupération des données du site openfoodfact\n"
       "La récupération des catégories et des produits peut prendre plusieurs heures\n"
       "Veuillez ne pas éteindre votre ordinateur pendant la récupération\n"
@@ -60,26 +60,24 @@ if command.lower() == "o":
     print("Connexion au site openfoodfact\n")
     categories_json = requests.get("https://fr.openfoodfacts.org/categories.json")
     print("Connexion réussie au site openfoodfact")
+    clr()
     categories_dic = categories_json.json()
     total_count = categories_dic['count']
     for categories in categories_dic['tags']:
-        if int(categories['products']) > 10 and len(categories['name']) < 150 and str(categories['name']).lower() != str(categories['id']).lower():
+        if int(categories['products']) > 10 and len(categories['name']) < 150 and str(
+                categories['name']).lower() != str(categories['id']).lower():
             categories_add = Categories(name=categories['name'], link_http=categories['url'],
                                         id_category=categories['id'])
             connection.connect.add(categories_add)
             count += 1
-            if (count % 10) == 0:
-                print("Récuperation des catégories, ", percentage_calculation(count, total_count), "%",
-                      " d'effectué(s)")
-                clr()
+
         else:
             count += 1
-            if (count % 10) == 0:
-                print("Récuperation des catégories, ", percentage_calculation(count, total_count), "%",
-                      " d'effectué(s)")
-                clr()
 
-    print("Récuperation des catégories 100 % d'effectué(s)")
+        print("Récuperation des catégories, ", str(percentage_calculation(count, total_count)), "%",
+              " d'effectué(s)", end='\r')
+        sys.stdout.flush()
+
     connection.connect.commit()
     print("Récupération des catégories réussies")
     time.sleep(2)
@@ -88,13 +86,14 @@ if command.lower() == "o":
     connection.connect.expunge_all()
 
     # recovery the products
-    print("Récupération des produits")
+    print("Récupération des produits", end='\r')
+    sys.stdout.flush()
     count = 0
     number_page = 1
     final_page = True
 
     while final_page is True:
-        link_page = (lambda url, number_page: str(url) + "/" + str(number_page) + ".json")(
+        link_page = (lambda url, number_pages: str(url) + "/" + str(number_pages) + ".json")(
             "https://fr.openfoodfacts.org", number_page)
         products_dic = requests.get(link_page).json()
         if products_dic['count']:
@@ -105,8 +104,7 @@ if command.lower() == "o":
             if 'nutrition_grades' in product.keys() \
                     and 'product_name_fr' in product.keys() \
                     and 'categories_tags' in product.keys() \
-                    and len(product['product_name_fr']) >= 1 \
-                    and len(product['product_name_fr']) <= 100:
+                    and 1 <= len(product['product_name_fr']) <= 100:
                 try:
                     article = Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
                                        nutrition_grade=product['nutrition_grades'], shop=product['stores'],
@@ -116,12 +114,11 @@ if command.lower() == "o":
                 except KeyError:
                     continue
 
+            print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
+                  end='\r')
+            sys.stdout.flush()
             count += 1
         connection.connect.commit()
-        print(number_page)
-        clr()
-        print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)")
-
         number_page += 1
     connection.connect.commit()
 

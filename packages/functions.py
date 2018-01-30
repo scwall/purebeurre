@@ -44,10 +44,10 @@ def print_how_to_use(type):
     if type == "product":
         print("entrer '!>' pour passer à la page suivante \n "
               "entrer '!<' pour revenir à la page précédente \n"
-              "pour revenir en arrière entrer !#"
-              "entrer '!@' pour quitter l'application"
-              "pour selectionner un produit, indiquer juste le numéro du produit")
+              "pour revenir en arrière entrer !#\n"
+              "entrer '!@' pour quitter l'application\n"
+              "pour selectionner un produit, indiquer juste le numéro du produit \n")
     if type == "save":
         print("entrer '!>' pour passer à la page suivante \n "
               "entrer '!<' pour revenir à la page précédente \n"
-              "pour sélectionner un produit sauvegarder, indiquer juste le numéro du produit ")
+              "pour sélectionner un produit sauvegarder, indiquer juste le numéro du produit \n")
