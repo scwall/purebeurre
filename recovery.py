@@ -12,7 +12,6 @@ from packages.databases.models import Categories, Products
 from packages.databases.query_models import CategoriesQuery, ConnectionQuery
 import requests
 
-
 print("Bienvenue dans la récupération des données du site openfoodfact\n"
       "La récupération des catégories et des produits peut prendre plusieurs heures\n"
       "Veuillez ne pas éteindre votre ordinateur pendant la récupération\n"
@@ -97,16 +96,17 @@ if command.lower() == "o":
 
     while final_page is True:
 
-
-        for link_page_add_list in range(10):
+        for link_page_add_list in range(1,10):
             link = ((lambda url, number_pages: str(url) + "/" + str(number_pages) + ".json")(
-                 "https://fr.openfoodfacts.org", link_page_add_list))
+                "https://fr.openfoodfacts.org", link_page_add_list))
 
             list_page_for_pool.append((link, count, total_count))
 
 
-        def function_recovery_and_push(link_page,count,total_count):
+        def function_recovery_and_push(link_page, count, total_count):
+
             list_article = []
+            print(link_page)
             products_dic = requests.get(link_page).json()
             if products_dic['count']:
                 total_count = products_dic['count']
@@ -118,21 +118,25 @@ if command.lower() == "o":
                         and 'categories_tags' in product.keys() \
                         and 1 <= len(product['product_name_fr']) <= 100:
                     try:
-                        list_article.append(Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
-                                           nutrition_grade=product['nutrition_grades'], shop=product['stores'],
-                                           link_http=product['url'],
-                                           categories=CategoriesQuery.get_categories_by_tags(product['categories_tags'])))
+                        list_article.append(
+                            Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
+                                     nutrition_grade=product['nutrition_grades'], shop=product['stores'],
+                                     link_http=product['url'],
+                                     categories=CategoriesQuery.get_categories_by_tags(product['categories_tags'])))
 
                     except KeyError:
                         continue
                 print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
                       end='\r')
                 sys.stdout.flush()
+
                 count += 1
+            return 'test'
 
 
-        p = Pool(2)
-        articles_list_all = p.starmap(function_recovery_and_push,list_page_for_pool)
+        p = Pool(4)
+        articles_list_all = p.starmap(function_recovery_and_push, list_page_for_pool)
+        print('test')
         for articles_list in articles_list_all:
             for article in articles_list:
                 connection.connect.add(article)
