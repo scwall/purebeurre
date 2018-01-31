@@ -91,57 +91,80 @@ if command.lower() == "o":
     sys.stdout.flush()
     count = 0
     number_page = 1
-    final_page = True
+    final_page = False
     list_page_for_pool = []
+    range_list = [1, 10]
+    articles_list_all = []
 
-    while final_page is True:
+    while final_page is False:
 
-        for link_page_add_list in range(1,10):
+        for link_page_add_list in range(*range_list):
             link = ((lambda url, number_pages: str(url) + "/" + str(number_pages) + ".json")(
                 "https://fr.openfoodfacts.org", link_page_add_list))
 
-            list_page_for_pool.append((link, count, total_count))
+            list_page_for_pool.append(link)
 
 
-        def function_recovery_and_push(link_page, count, total_count):
-
+        def function_recovery_and_push(link_page):
+            count_and_end_page_return_all = {}
+            count = 0
+            total_count = 0
             list_article = []
-            print(link_page)
-            products_dic = requests.get(link_page).json()
-            if products_dic['count']:
-                total_count = products_dic['count']
-            if not products_dic['products']:
-                final_page = False
-            for product in products_dic["products"]:
-                if 'nutrition_grades' in product.keys() \
-                        and 'product_name_fr' in product.keys() \
-                        and 'categories_tags' in product.keys() \
-                        and 1 <= len(product['product_name_fr']) <= 100:
-                    try:
-                        list_article.append(
-                            Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
-                                     nutrition_grade=product['nutrition_grades'], shop=product['stores'],
-                                     link_http=product['url'],
-                                     categories=CategoriesQuery.get_categories_by_tags(product['categories_tags'])))
+            try:
+                products_dic = requests.get(link_page).json()
+                if products_dic['count']:
+                    total_count = products_dic['count']
+                for product in products_dic["products"]:
+                    if 'nutrition_grades' in product.keys() \
+                            and 'product_name_fr' in product.keys() \
+                            and 'categories_tags' in product.keys() \
+                            and 1 <= len(product['product_name_fr']) <= 100:
+                        try:
+                            list_article.append(
+                                Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
+                                         nutrition_grade=product['nutrition_grades'], shop=product['stores'],
+                                         link_http=product['url'],
+                                         categories=CategoriesQuery.get_categories_by_tags(product['categories_tags'])))
 
-                    except KeyError:
-                        continue
-                print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
-                      end='\r')
-                sys.stdout.flush()
+                        except KeyError:
+                            continue
 
-                count += 1
-            return 'test'
+                    count += 1
+                count_and_end_page_return_all['count'] = count
+                count_and_end_page_return_all['total_count'] = total_count
+                count_and_end_page_return_all['final_page'] = False
+                list_article.append(count_and_end_page_return_all)
+                return list_article
+            except:
+                count_and_end_page_return_all['final_page'] = True
+                list_article.append(count_and_end_page_return_all)
+                return list_article
 
 
-        p = Pool(4)
-        articles_list_all = p.starmap(function_recovery_and_push, list_page_for_pool)
-        print('test')
-        for articles_list in articles_list_all:
-            for article in articles_list:
-                connection.connect.add(article)
+        p = Pool(8)
+        articles_list_all_pool = p.map(function_recovery_and_push, list_page_for_pool)
+        print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
+              end='\r')
+        sys.stdout.flush()
+        for articles_list_pool in articles_list_all_pool:
+            for article in articles_list_pool:
+                if type(article) is dict:
+                    count += article['count']
+                    if total_count <= article['total_count']:
+                        total_count = article['total_count']
+                    if article['final_page'] is True:
+                        final_page = article['final_page']
 
-    connection.connect.commit()
+                else:
+                    articles_list_all.append(article)
+                    connection.connect.merge(article)
+        range_list[0] += 10
+        range_list[1] += 10
+
+        print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
+              end='\r')
+        sys.stdout.flush()
+        connection.connect.commit()
 
     print("Récupération des produits réussi\n"""
           "Vous avez récupéré la totalité des produits et catégories\n"
