@@ -1,16 +1,17 @@
 # coding: utf8
-import sys
-import time
-from multiprocessing.pool import Pool
-
-from packages.functions import clr, percentage_calculation, install_all_packages
-
-install_all_packages(['requests', 'sqlalchemy', 'pymysql'])
-from packages.databases.add_information_function import add_information_connection
-from packages.databases.databases import Database
-from packages.databases.models import Categories, Products
-from packages.databases.query_models import CategoriesQuery, ConnectionQuery
-import requests
+try:
+    import sys
+    import time
+    from multiprocessing.pool import Pool
+    from packages.functions import clr, percentage_calculation, install_all_packages
+    from packages.databases.add_information_function import add_information_connection
+    from packages.databases.databases import Database
+    from packages.databases.models import Categories, Products
+    from packages.databases.query_models import CategoriesQuery, ConnectionQuery
+    import requests
+except:
+    install_all_packages(['requests', 'sqlalchemy', 'pymysql'])
+    sys.exit('Veuillez relancer recovery.py')
 
 print("Bienvenue dans la récupération des données du site openfoodfact\n"
       "La récupération des catégories et des produits peut prendre plusieurs heures\n"
@@ -94,7 +95,6 @@ if command.lower() == "o":
     final_page = False
     list_page_for_pool = []
     range_list = [1, 10]
-    articles_list_all = []
 
     while final_page is False:
 
@@ -107,13 +107,13 @@ if command.lower() == "o":
 
         def function_recovery_and_push(link_page):
             count_and_end_page_return_all = {}
-            count = 0
-            total_count = 0
+            count_f = 0
+            total_count_f = 0
             list_article = []
             try:
                 products_dic = requests.get(link_page).json()
                 if products_dic['count']:
-                    total_count = products_dic['count']
+                    total_count_f = products_dic['count']
                 for product in products_dic["products"]:
                     if 'nutrition_grades' in product.keys() \
                             and 'product_name_fr' in product.keys() \
@@ -129,20 +129,22 @@ if command.lower() == "o":
                         except KeyError:
                             continue
 
-                    count += 1
-                count_and_end_page_return_all['count'] = count
-                count_and_end_page_return_all['total_count'] = total_count
+                    count_f += 1
+                count_and_end_page_return_all['count'] = count_f
+                count_and_end_page_return_all['total_count'] = total_count_f
                 count_and_end_page_return_all['final_page'] = False
                 list_article.append(count_and_end_page_return_all)
                 return list_article
+
             except:
                 count_and_end_page_return_all['final_page'] = True
                 list_article.append(count_and_end_page_return_all)
                 return list_article
 
 
-        p = Pool(8)
+        p = Pool(30)
         articles_list_all_pool = p.map(function_recovery_and_push, list_page_for_pool)
+        p.close()
         print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
               end='\r')
         sys.stdout.flush()
@@ -156,7 +158,6 @@ if command.lower() == "o":
                         final_page = article['final_page']
 
                 else:
-                    articles_list_all.append(article)
                     connection.connect.merge(article)
         range_list[0] += 10
         range_list[1] += 10
