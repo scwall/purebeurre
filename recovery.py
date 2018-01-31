@@ -1,6 +1,8 @@
 # coding: utf8
 import sys
 import time
+from multiprocessing.pool import Pool
+
 from packages.functions import clr, percentage_calculation, install_all_packages
 
 install_all_packages(['requests', 'sqlalchemy', 'pymysql'])
@@ -8,6 +10,7 @@ from packages.databases.add_information_function import add_information_connecti
 from packages.databases.databases import Database
 from packages.databases.models import Categories, Products
 from packages.databases.query_models import CategoriesQuery, ConnectionQuery
+import requests
 
 
 print("Bienvenue dans la récupération des données du site openfoodfact\n"
@@ -96,11 +99,14 @@ if command.lower() == "o":
 
 
         for link_page_add_list in range(10):
+            link = ((lambda url, number_pages: str(url) + "/" + str(number_pages) + ".json")(
+                 "https://fr.openfoodfacts.org", link_page_add_list))
 
-            list_page_for_pool.append((lambda url, number_pages: str(url) + "/" + str(number_pages) + ".json")(
-                "https://fr.openfoodfacts.org", link_page_add_list))
+            list_page_for_pool.append((link, count, total_count))
+
 
         def function_recovery_and_push(link_page,count,total_count):
+            list_article = []
             products_dic = requests.get(link_page).json()
             if products_dic['count']:
                 total_count = products_dic['count']
@@ -112,14 +118,13 @@ if command.lower() == "o":
                         and 'categories_tags' in product.keys() \
                         and 1 <= len(product['product_name_fr']) <= 100:
                     try:
-                        article = Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
+                        list_article.append(Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
                                            nutrition_grade=product['nutrition_grades'], shop=product['stores'],
                                            link_http=product['url'],
-                                           categories=CategoriesQuery.get_categories_by_tags(product['categories_tags']))
-                        connection.connect.add(article)
+                                           categories=CategoriesQuery.get_categories_by_tags(product['categories_tags'])))
+
                     except KeyError:
                         continue
-                print("pool")
                 print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
                       end='\r')
                 sys.stdout.flush()
@@ -127,9 +132,10 @@ if command.lower() == "o":
 
 
         p = Pool(2)
-        p.starmap(function_recovery_and_push,[])
-        p.close()
-        connection.connect.commit()
+        articles_list_all = p.starmap(function_recovery_and_push,list_page_for_pool)
+        for articles_list in articles_list_all:
+            for article in articles_list:
+                connection.connect.add(article)
 
     connection.connect.commit()
 
