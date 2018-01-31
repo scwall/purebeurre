@@ -13,7 +13,7 @@ def add_information_connection():
 
         if connection.result_connection["error"] == "hostname or password" or connection.result_connection[
             "error"] == "first":
-            info_connection["host"] = input("enter the hostname of the databases: ")
+            info_connection["host"] = str(input("enter the hostname of the databases: "))
         if connection.result_connection["error"] == "username" or connection.result_connection["error"] == "first":
             info_connection["user"] = input("enter the username of the databases: ")
         if connection.result_connection["error"] == "password" or connection.result_connection["error"] == "first":

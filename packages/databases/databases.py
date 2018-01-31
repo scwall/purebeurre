@@ -48,7 +48,6 @@ class Database():
             self.charset = self.info_connection["charset"]
             self.port = self.info_connection["port"]
             self.connect_databases()
-            self.close_databases()
 
     def connect_databases(self):
         """
