@@ -1,4 +1,6 @@
 # coding: utf8
+import multiprocessing
+
 try:
     import sys
     import time
@@ -91,10 +93,10 @@ if command.lower() == "o":
     print("Récupération des produits", end='\r')
     sys.stdout.flush()
     count = 0
-    number_page = 1
+    total_count = 0
     final_page = False
     list_page_for_pool = []
-    range_list = [1, 10]
+    range_list = [1, 20]
 
     while final_page is False:
 
@@ -118,7 +120,7 @@ if command.lower() == "o":
                     if 'nutrition_grades' in product.keys() \
                             and 'product_name_fr' in product.keys() \
                             and 'categories_tags' in product.keys() \
-                            and 1 <= len(product['product_name_fr']) <= 100:
+                            and 1 <= len(product['product_name_fr']) <= 100 :
                         try:
                             list_article.append(
                                 Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
@@ -142,12 +144,10 @@ if command.lower() == "o":
                 return list_article
 
 
-        p = Pool(30)
+        p = Pool(processes=multiprocessing.cpu_count())
         articles_list_all_pool = p.map(function_recovery_and_push, list_page_for_pool)
         p.close()
-        print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
-              end='\r')
-        sys.stdout.flush()
+
         for articles_list_pool in articles_list_all_pool:
             for article in articles_list_pool:
                 if type(article) is dict:
@@ -159,13 +159,17 @@ if command.lower() == "o":
 
                 else:
                     connection.connect.merge(article)
-        range_list[0] += 10
-        range_list[1] += 10
+        print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
+              end='\r')
+        sys.stdout.flush()
+        range_list[0] += 20
+        range_list[1] += 20
 
         print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
               end='\r')
         sys.stdout.flush()
-        connection.connect.commit()
+
+    connection.connect.commit()
 
     print("Récupération des produits réussi\n"""
           "Vous avez récupéré la totalité des produits et catégories\n"
