@@ -1,5 +1,35 @@
 import os
 from pathlib import Path
+import pip
+import os
+import sys
+
+
+
+def install_all_packages(modules_to_try):
+
+    for module in modules_to_try:
+        try:
+           __import__(module)
+        except ImportError as e:
+            import os
+            euid = os.geteuid()
+            if  (lambda major, minor: major == 3 and minor >= 5)(sys.version_info.major, sys.version_info.minor) is False:
+                sys.exit('Vous utiliser une mauvaise version de python, version demandée python >= 3.5')
+            elif euid != 0:
+                root = True
+                while root is True:
+                    print("Il manque certaines librairies pour executer le programme, vous devez le relancer \n"
+                          " en root pour que pip puisse les installer, si vous utilisez un environment virtuel (virtualenv)\n"
+                          "Confirmer par !1 sinon !0")
+                    command = input("> ")
+                    if command == "!1":
+                        pip.main(['install', module])
+                        root = False
+                    if command == "!0":
+                        sys.exit("Veillez relancer le programme en root")
+            else:
+                pip.main(['install',module])
 
 
 def clr():

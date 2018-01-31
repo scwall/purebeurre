@@ -1,12 +1,13 @@
 import time
 import sys
+from packages.functions import change_display_products_and_categories, product_display, print_how_to_use, \
+    install_all_packages
 
+install_all_packages(['requests', 'sqlalchemy', 'pymysql'])
 from packages.databases.add_information_function import add_information_connection
 from packages.databases.query_models import CategoriesQuery, ProductsQuery, ConnectionQuery
 from packages.databases.databases import Database
 from packages.databases.models import SaveProducts
-
-from packages.functions import change_display_products_and_categories, product_display, print_how_to_use
 
 connection = Database()
 if connection.result_connection["error"] is not False:
@@ -29,10 +30,10 @@ if False in connection.if_exist_table("categories", "link_category_product", "pr
     sys.exit("Base de donnée inexistante ")
 already_saved_categories = CategoriesQuery.get_categories_count()
 already_saved_products = ProductsQuery.get_products_count()
-if already_saved_categories < 1 < already_saved_products:
-    print("Vous n'avez pas récupérer les catégories et les produits \n "
+if already_saved_categories < 100 or already_saved_products < 100:
+    print("Vous n'avez pas récupérer (ou partiellement) les catégories et les produits \n "
           "Veuillez executer le fichier recovery.py")
-    sys.exit("Aucune categorie, ni produits dans la base de données ")
+    sys.exit("Aucune (ou partiellement)  des categories, et produits dans la base de données ")
 
 while main_menu is True:
 

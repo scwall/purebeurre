@@ -48,7 +48,6 @@ class Database():
             self.charset = self.info_connection["charset"]
             self.port = self.info_connection["port"]
             self.connect_databases()
-            self.close_databases()
 
     def connect_databases(self):
         """
@@ -73,7 +72,7 @@ class Database():
                     .format(username=self.user, password=self.password, host=self.host, port=self.port, dbName=self.db))
             self.Base = base.Base
             self.Base.metadata.bind = self.engine
-            DBSession = sessionmaker(bind=self.engine)
+            DBSession = sessionmaker(bind=self.engine,autoflush=False)
             self.connect = DBSession()
             return (self.connect)
         except pymysql.err.MySQLError as exception:
