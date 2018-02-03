@@ -95,14 +95,12 @@ if command.lower() == "o":
     count = 0
     total_count = 0
     final_page = False
-    list_page_for_pool = []
-    range_list = [1, 20]
-
+    range_list = [0, 20]
     while final_page is False:
-
+        list_page_for_pool = []
         for link_page_add_list in range(*range_list):
             link = ((lambda url, number_pages: str(url) + "/" + str(number_pages) + ".json")(
-                "https://fr.openfoodfacts.org", link_page_add_list))
+                "https://fr.openfoodfacts.org", link_page_add_list + 1))
 
             list_page_for_pool.append(link)
 
@@ -115,12 +113,20 @@ if command.lower() == "o":
             try:
                 products_dic = requests.get(link_page).json()
                 if products_dic['count']:
+                    count_f = products_dic['page_size']
+                if products_dic['count']:
                     total_count_f = products_dic['count']
+                if not products_dic['products']:
+                    count_and_end_page_return_all['count'] = False
+                    count_and_end_page_return_all['total_count'] = False
+                    count_and_end_page_return_all['final_page'] = True
+                else:
+                    count_and_end_page_return_all['final_page'] = False
                 for product in products_dic["products"]:
                     if 'nutrition_grades' in product.keys() \
                             and 'product_name_fr' in product.keys() \
                             and 'categories_tags' in product.keys() \
-                            and 1 <= len(product['product_name_fr']) <= 100 :
+                            and 1 <= len(product['product_name_fr']) <= 100:
                         try:
                             list_article.append(
                                 Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
@@ -131,29 +137,30 @@ if command.lower() == "o":
                         except KeyError:
                             continue
 
-                    count_f += 1
                 count_and_end_page_return_all['count'] = count_f
                 count_and_end_page_return_all['total_count'] = total_count_f
-                count_and_end_page_return_all['final_page'] = False
                 list_article.append(count_and_end_page_return_all)
                 return list_article
 
             except:
+                count_and_end_page_return_all['count'] = False
+                count_and_end_page_return_all['total_count'] = False
                 count_and_end_page_return_all['final_page'] = True
                 list_article.append(count_and_end_page_return_all)
                 return list_article
 
 
-        p = Pool(processes=multiprocessing.cpu_count())
+        p = Pool()
         articles_list_all_pool = p.map(function_recovery_and_push, list_page_for_pool)
         p.close()
 
         for articles_list_pool in articles_list_all_pool:
             for article in articles_list_pool:
                 if type(article) is dict:
-                    count += article['count']
-                    if total_count <= article['total_count']:
+                    if article['count'] != False and article['total_count'] != False:
+                        count += article['count']
                         total_count = article['total_count']
+
                     if article['final_page'] is True:
                         final_page = article['final_page']
 
@@ -164,13 +171,10 @@ if command.lower() == "o":
         sys.stdout.flush()
         range_list[0] += 20
         range_list[1] += 20
-
         print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
               end='\r')
         sys.stdout.flush()
-
     connection.connect.commit()
-
     print("Récupération des produits réussi\n"""
           "Vous avez récupéré la totalité des produits et catégories\n"
           "Vous pouvez utiliser le programme principal pour consulter les produits"
