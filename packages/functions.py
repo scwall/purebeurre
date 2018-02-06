@@ -5,16 +5,15 @@ import os
 import sys
 
 
-
 def install_all_packages(modules_to_try):
-
     for module in modules_to_try:
         try:
-           __import__(module)
+            __import__(module)
         except ImportError as e:
             import os
             euid = os.geteuid()
-            if  (lambda major, minor: major == 3 and minor >= 5)(sys.version_info.major, sys.version_info.minor) is False:
+            if (lambda major, minor: major == 3 and minor >= 5)(sys.version_info.major,
+                                                                sys.version_info.minor) is False:
                 sys.exit('Vous utiliser une mauvaise version de python, version demandée python >= 3.5')
             elif euid != 0:
                 root = True
@@ -29,7 +28,7 @@ def install_all_packages(modules_to_try):
                     if command == "!0":
                         sys.exit("Veillez relancer le programme en root")
             else:
-                pip.main(['install',module])
+                pip.main(['install', module])
 
 
 def clr():
@@ -66,18 +65,27 @@ def product_display(list_product_dic, command):
 
 def print_how_to_use(type):
     if type == "category":
-        print("entrer '!>' pour passer à la page suivante \n "
+        print("\n"
+              "entrer '!>' pour passer à la page suivante \n "
               "entrer '!<' pour revenir à la page précédente \n"
               "entrer '!# pour revenir au menu précédent\n"
               "entrer '!@' pour quitter l'application\n"
-              "pour sélectionner une catégorie, indiquer juste le numéro de la categorie")
+              "pour sélectionner une catégorie, indiquer juste le numéro de la categorie \n")
     if type == "product":
-        print("entrer '!>' pour passer à la page suivante \n "
+        print("\n"
+              "entrer '!>' pour passer à la page suivante \n "
               "entrer '!<' pour revenir à la page précédente \n"
-              "pour revenir en arrière entrer !#\n"
+              "entrer '!# pour revenir au menu précédent\n"
               "entrer '!@' pour quitter l'application\n"
               "pour selectionner un produit, indiquer juste le numéro du produit \n")
     if type == "save":
-        print("entrer '!>' pour passer à la page suivante \n "
+        print("\n"
+              "entrer '!>' pour passer à la page suivante \n "
               "entrer '!<' pour revenir à la page précédente \n"
+              "entrer '!# pour revenir au menu précédent\n"
+              "entrer '!@' pour quitter l'application\n"
               "pour sélectionner un produit sauvegarder, indiquer juste le numéro du produit \n")
+    if type == "save_product":
+        print("\n"
+              "entrer '!# pour revenir au menu précédent\n"
+              "entrer '!@' pour quitter l'application\n")

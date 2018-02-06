@@ -1,19 +1,15 @@
 # coding: utf8
-import multiprocessing
+import sys
 
-try:
-    import sys
-    import time
-    from multiprocessing.pool import Pool
-    from packages.functions import clr, percentage_calculation, install_all_packages
-    from packages.databases.add_information_function import add_information_connection
-    from packages.databases.databases import Database
-    from packages.databases.models import Categories, Products
-    from packages.databases.query_models import CategoriesQuery, ConnectionQuery
-    import requests
-except:
-    install_all_packages(['requests', 'sqlalchemy', 'pymysql'])
-    sys.exit('Veuillez relancer recovery.py')
+import requests
+import time
+
+from packages.databases.add_information_function import add_information_connection
+from packages.databases.databases import Database
+from packages.databases.models import Categories, Products
+from packages.databases.query_models import CategoriesQuery, ConnectionQuery
+from packages.functions import clr, percentage_calculation
+
 
 print("Bienvenue dans la récupération des données du site openfoodfact\n"
       "La récupération des catégories et des produits peut prendre plusieurs heures\n"
@@ -93,88 +89,39 @@ if command.lower() == "o":
     print("Récupération des produits", end='\r')
     sys.stdout.flush()
     count = 0
-    total_count = 0
-    final_page = False
-    range_list = [0, 20]
-    while final_page is False:
-        list_page_for_pool = []
-        for link_page_add_list in range(*range_list):
-            link = ((lambda url, number_pages: str(url) + "/" + str(number_pages) + ".json")(
-                "https://fr.openfoodfacts.org", link_page_add_list + 1))
+    number_page = 1
+    final_page = True
 
-            list_page_for_pool.append(link)
+    while final_page is True:
+        link_page = (lambda url, number_pages: str(url) + "/" + str(number_pages) + ".json")(
+            "https://fr.openfoodfacts.org", number_page)
+        products_dic = requests.get(link_page).json()
+        if products_dic['count']:
+            total_count = products_dic['count']
+        if not products_dic['products']:
+            final_page = False
+        for product in products_dic["products"]:
+            if 'nutrition_grades' in product.keys() \
+                    and 'product_name_fr' in product.keys() \
+                    and 'categories_tags' in product.keys() \
+                    and 1 <= len(product['product_name_fr']) <= 100:
+                try:
+                    article = Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
+                                       nutrition_grade=product['nutrition_grades'], shop=product['stores'],
+                                       link_http=product['url'],
+                                       categories=CategoriesQuery.get_categories_by_tags(product['categories_tags']))
+                    connection.connect.add(article)
+                except KeyError:
+                    continue
 
-
-        def function_recovery_and_push(link_page):
-            count_and_end_page_return_all = {}
-            count_f = 0
-            total_count_f = 0
-            list_article = []
-            try:
-                products_dic = requests.get(link_page).json()
-                if products_dic['count']:
-                    count_f = products_dic['page_size']
-                if products_dic['count']:
-                    total_count_f = products_dic['count']
-                if not products_dic['products']:
-                    count_and_end_page_return_all['count'] = False
-                    count_and_end_page_return_all['total_count'] = False
-                    count_and_end_page_return_all['final_page'] = True
-                else:
-                    count_and_end_page_return_all['final_page'] = False
-                for product in products_dic["products"]:
-                    if 'nutrition_grades' in product.keys() \
-                            and 'product_name_fr' in product.keys() \
-                            and 'categories_tags' in product.keys() \
-                            and 1 <= len(product['product_name_fr']) <= 100:
-                        try:
-                            list_article.append(
-                                Products(name=product['product_name_fr'], description=product['ingredients_text_fr'],
-                                         nutrition_grade=product['nutrition_grades'], shop=product['stores'],
-                                         link_http=product['url'],
-                                         categories=CategoriesQuery.get_categories_by_tags(product['categories_tags'])))
-
-                        except KeyError:
-                            continue
-
-                count_and_end_page_return_all['count'] = count_f
-                count_and_end_page_return_all['total_count'] = total_count_f
-                list_article.append(count_and_end_page_return_all)
-                return list_article
-
-            except:
-                count_and_end_page_return_all['count'] = False
-                count_and_end_page_return_all['total_count'] = False
-                count_and_end_page_return_all['final_page'] = True
-                list_article.append(count_and_end_page_return_all)
-                return list_article
-
-
-        p = Pool()
-        articles_list_all_pool = p.map(function_recovery_and_push, list_page_for_pool)
-        p.close()
-
-        for articles_list_pool in articles_list_all_pool:
-            for article in articles_list_pool:
-                if type(article) is dict:
-                    if article['count'] != False and article['total_count'] != False:
-                        count += article['count']
-                        total_count = article['total_count']
-
-                    if article['final_page'] is True:
-                        final_page = article['final_page']
-
-                else:
-                    connection.connect.merge(article)
-        print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
-              end='\r')
-        sys.stdout.flush()
-        range_list[0] += 20
-        range_list[1] += 20
-        print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
-              end='\r')
-        sys.stdout.flush()
+            print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
+                  end='\r')
+            sys.stdout.flush()
+            count += 1
+        connection.connect.commit()
+        number_page += 1
     connection.connect.commit()
+
     print("Récupération des produits réussi\n"""
           "Vous avez récupéré la totalité des produits et catégories\n"
           "Vous pouvez utiliser le programme principal pour consulter les produits"

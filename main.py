@@ -2,9 +2,9 @@ try:
     import time
     import sys
     from packages.functions import change_display_products_and_categories, product_display, print_how_to_use, \
-        install_all_packages
+        install_all_packages, clr
     from packages.databases.add_information_function import add_information_connection
-    from packages.databases.query_models import CategoriesQuery, ProductsQuery, ConnectionQuery
+    from packages.databases.query_models import CategoriesQuery, ProductsQuery, ConnectionQuery, SaveProductsQuery
     from packages.databases.databases import Database
     from packages.databases.models import SaveProducts
 except:
@@ -21,6 +21,7 @@ save_menu = True
 recovery = True
 products_effective = True
 products_quality_effective = True
+save_product_menu = True
 categories_numbers_display = [0, 30]
 products_numbers_display = [0, 30]
 save_numbers_display = [0, 30]
@@ -45,6 +46,7 @@ while main_menu is True:
     print("Pour consulter les produits enregistrer '2'")
     command = input("> ")
     if command.isdigit() and int(command) == 1:
+        clr()
         while search_product is True:
             list_categories = CategoriesQuery.get_categories_numbers(*categories_numbers_display)
             number = 1
@@ -61,14 +63,15 @@ while main_menu is True:
             categories_numbers_display = \
                 change_display_products_and_categories(categories_numbers_display, command)
 
-            if command.isdigit() and categories_numbers_display[0] <= int(command) <= categories_numbers_display[1]:
-
+            if command.isdigit() and 1 <= int(command) <= len(list_categories_dic.keys()):
+                clr()
                 category_id = list_categories_dic[int(command)].id
                 while products_effective is True:
+                    temporary_save = 0
                     list_product_dic = {}
                     products = ProductsQuery.get_product_on_category(category_id, *products_numbers_display)
                     print("Voici la liste des produits de la catégorie " + ' " ' + str(
-                        CategoriesQuery.get_categorie_id(category_id).name) + ' " ')
+                        CategoriesQuery.get_categorie_id(category_id).name) + ' " ' + "\n")
                     number = 1
                     for product in products:
                         list_product_dic[number] = product
@@ -77,12 +80,25 @@ while main_menu is True:
                         print(key_product, " ", object_product.name)
                     print_how_to_use("product")
                     command = input("> ")
+                    clr()
                     products_numbers_display = change_display_products_and_categories(products_numbers_display, command)
                     if command.isdigit() and 1 <= int(command) <= len(list_product_dic.keys()):
                         product_display(list_product_dic, command)
-                        print("Voulez vous trouver des  meilleurs alternatives\n"
-                              "dans cette catégorie à votre produit ? oui :!1/ non: !0")
+                        print_how_to_use('product')
+                        print(
+                            "Voulez vous trouver des  meilleurs alternatives dans cette catégorie à votre produit ? "
+                            "oui :!1 / non: !0\n "
+                            "ou voulez vous sauvegarder se produit ? oui !3\n")
+                        temporary_save = command
                         command = input("> ")
+                    if command.lower() == "!3":
+                        save = SaveProducts()
+                        save.save_product = list_product_dic[int(temporary_save)]
+                        connection.connect.add(save)
+                        connection.connect.commit()
+                        print('Produit sauvegardé')
+                        time.sleep(0.5)
+                        clr()
                     if command.lower() == "!1":
                         number = 1
                         list_best_product_dic = {}
@@ -96,9 +112,11 @@ while main_menu is True:
                                 print(key_product, " ", object_product.name)
                             print("Selectionner votre produit")
                             command = input("> ")
+                            clr()
                             if command.isdigit() and 1 <= int(command) <= len(
                                     list_best_product_dic.keys()):
                                 product_display(list_best_product_dic, command)
+                                print_how_to_use('product' + "\n")
                                 print("Voulez vous sauvegarder votre produit ? oui : !1/ non : !0")
                                 command_save = input("> ")
                                 if command_save.lower() == "!1":
@@ -106,6 +124,9 @@ while main_menu is True:
                                     save.save_product = list_best_product_dic[int(command)]
                                     connection.connect.add(save)
                                     connection.connect.commit()
+                                    print('Produit sauvegardé')
+                                    time.sleep(0.5)
+                                    clr()
                             if command == "!#":
                                 products_quality_effective = False
                             if command == "!@":
@@ -121,7 +142,10 @@ while main_menu is True:
 
     if command.isdigit() and int(command) == 2:
         while save_menu is True:
-            print("Voici vos sauvegardes")
+            print("Voici vos sauvegardes\n")
+            number_save = SaveProductsQuery.get_save_count()
+            if number_save == 0:
+                print("Vous n'avez pas de sauvegarde !\n" + "\n")
             save_products = ProductsQuery.get_save_product_numbers(*save_numbers_display)
             list_save_product_dic = {}
             number = 1
@@ -130,10 +154,18 @@ while main_menu is True:
                 number += 1
             for key_save_product, object_save_product in list_save_product_dic.items():
                 print(key_save_product, " ", object_save_product.name)
-            print("Selectionner votre produit")
+            print_how_to_use('save')
             command = input("> ")
             if command.isdigit() and 1 <= int(command) <= len(list_save_product_dic.keys()):
-                product_display(list_save_product_dic, command)
+                while save_product_menu is True:
+                    clr()
+                    product_display(list_save_product_dic, command)
+                    print_how_to_use('save_product')
+                    command = input("> ")
+                    if command == "!#":
+                        save_product_menu= False
+                    if command == "!@":
+                        sys.exit("Programme stoppé")
             if command == "!#":
                 save_menu = False
             if command == "!@":

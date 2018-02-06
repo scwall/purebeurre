@@ -18,16 +18,11 @@ The software will analitics a database for compare and  find, some products of s
 Install python
 Install mariadb on the computer
 Launch the script create_db_subsitution.sql for création the database
-Launch the script "recoverydata.py" for the recovery the data of site openfoodfact and wait it recovery all data
-Use the terminal and launch analyze.py
+Launch the script "recovery.py" for the recovery the data of site openfoodfact and wait it recovery all data
+
 
 ```
 
-## Running the tests
-```
-
-For execute the unit tests, launch analyse_test.py
-```
 ## How to use "Pure beurre"
 At the launch of the application:
 

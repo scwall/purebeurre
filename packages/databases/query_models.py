@@ -68,6 +68,7 @@ class ProductsQuery(ConnectionQuery):
     def get_save_product_numbers(cls, start, end):
         return cls.connection.connect.query(Products).order_by(SaveProducts.date).filter(
             SaveProducts.id_product == Products.id)[start:end]
+
     @classmethod
     def get_products_count(cls):
         return cls.connection.connect.query(Products).count()
@@ -82,6 +83,10 @@ class SaveProductsQuery(ConnectionQuery):
     def get_save_product_numbers(cls, start, end):
         return cls.connection.connect.query(SaveProducts).order_by(SaveProducts.date).filter(
             SaveProducts.id_product == Products.id)[start:end]
+
+    @classmethod
+    def get_save_count(cls):
+        return cls.connection.connect.query(SaveProducts).count()
 
     @classmethod
     def delete_product(cls, id):
