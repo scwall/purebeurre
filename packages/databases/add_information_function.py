@@ -26,4 +26,4 @@ def add_information_connection():
             "error"] == "first":
             info_connection["port"] = int(input("enter the port used (default=3306): ") or 3306)
         connection.add_parameter(info_connection)
-    return "connect_databases established"
+    print("Connexion à la base de données réussie")

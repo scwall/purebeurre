@@ -1,14 +1,17 @@
 # coding: utf8
-import sys
+try:
+    import sys
+    import requests
+    import time
+    from packages.functions import clr, percentage_calculation, install_all_packages
+    from packages.databases.add_information_function import add_information_connection
+    from packages.databases.databases import Database
+    from packages.databases.models import Categories, Products
+    from packages.databases.query_models import CategoriesQuery, ConnectionQuery, ProductsQuery
 
-import requests
-import time
-
-from packages.databases.add_information_function import add_information_connection
-from packages.databases.databases import Database
-from packages.databases.models import Categories, Products
-from packages.databases.query_models import CategoriesQuery, ConnectionQuery
-from packages.functions import clr, percentage_calculation
+except:
+    install_all_packages(['requests', 'sqlalchemy', 'pymysql'])
+    sys.exit('Veuillez relancer recovery.py')
 
 
 print("Bienvenue dans la récupération des données du site openfoodfact\n"
@@ -23,7 +26,7 @@ if command.lower() == "o":
     connection = Database()
     if connection.result_connection["error"] is not False:
         add_information_connection()
-    print("Connexion à la base de données réussie")
+    connection = Database()
     connection.connect_databases()
     ConnectionQuery.set_connection(connection)
     if False in connection.if_exist_table("categories", "link_category_product", "products", "save_products"):
@@ -34,15 +37,15 @@ if command.lower() == "o":
         print("Création des tables")
         connection.create_table()
     already_saved_categories = CategoriesQuery.get_categories_count()
-
+    already_saved_products = ProductsQuery.get_products_count()
     if already_saved_categories > 1:
         already_saved_boucle = True
         while already_saved_boucle is True:
-            print("vous semblez avoir déjà récupéré les données sur openfoodfact\n "
-                  "il y a actuellement " + str(already_saved_categories) + " Categories dans votre base de données")
+            print("vous semblez avoir déjà récupéré les données sur openfoodfact\n"
+                  "il y a actuellement " + str(already_saved_categories) + " Categories et "+ str(already_saved_products) + " produits dans votre base de données")
             print(
                 "Si l'application à planté ou qu'il y a eu une erreur "
-                "et que vous voulez réexecuter la récupération, "
+                "et que vous voulez réexecuter la récupération\n"
                 "veuillez confirmer par 'OUI' Pour recommencer depuis le début ou 'NON' (en majuscule) pour annuler\n")
 
             command = input("> ")

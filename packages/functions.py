@@ -59,7 +59,7 @@ def product_display(list_product_dic, command):
           "Grade de nutrition: {nutrition_grade} \n"
           "Lien https du produit: {link_http}".format(name_product=list_product_dic[int(command)].name,
                                                       product_description=list_product_dic[int(command)].description,
-                                                      nutrition_grade=list_product_dic[int(command)].nutrition_grade,
+                                                      nutrition_grade=list_product_dic[int(command)].nutrition_grade.upper(),
                                                       link_http=list_product_dic[int(command)].link_http))
 
 

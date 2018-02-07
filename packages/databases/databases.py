@@ -125,7 +125,9 @@ class Database():
             add_info_connection = pickle.Pickler(self.file)
             add_info_connection.dump(self.info_connection)
             self.file.close()
+
     def if_exist_table(self,*list_tables):
+
         check_is_true = []
         for table in list_tables:
             check_is_true.append(self.engine.dialect.has_table(self.engine,table))

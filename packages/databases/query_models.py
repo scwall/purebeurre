@@ -60,9 +60,9 @@ class ProductsQuery(ConnectionQuery):
         return cls.connection.connect.query(Products).filter(Products.id == id).one()
 
     @classmethod
-    def get_product_best_grade(cls, id):
+    def get_product_best_grade(cls, id,start,end):
         return cls.connection.connect.query(Products).filter(Products.id == Link_category_product.product_id).filter(
-            Link_category_product.category_id == id).filter(Products.nutrition_grade == "a").all()
+            Link_category_product.category_id == id).filter(Products.nutrition_grade == "a")[start:end]
 
     @classmethod
     def get_save_product_numbers(cls, start, end):
