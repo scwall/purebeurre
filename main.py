@@ -1,4 +1,5 @@
-# test if all packages and libraries is installed
+# test if all packages and libraries is installed and test version python
+
 try:
     import time
     import sys
@@ -11,6 +12,9 @@ try:
 except:
     install_all_packages(['requests', 'sqlalchemy', 'pymysql'])
     sys.exit('Veuillez relancer main.py')
+if (lambda major, minor: major == 3 and minor >= 5)(sys.version_info.major,
+                                                    sys.version_info.minor) is False:
+    sys.exit('Vous utiliser une mauvaise version de python, version demandée python >= 3.5')
 # Connection to the database and test if connection connection information is correct
 connection = Database()
 if connection.result_connection["error"] is not False:

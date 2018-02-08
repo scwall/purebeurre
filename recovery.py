@@ -12,7 +12,9 @@ try:
 except:
     install_all_packages(['requests', 'sqlalchemy', 'pymysql'])
     sys.exit('Veuillez relancer recovery.py')
-
+if (lambda major, minor: major == 3 and minor >= 5)(sys.version_info.major,
+                                                    sys.version_info.minor) is False:
+    sys.exit('Vous utiliser une mauvaise version de python, version demandée python >= 3.5')
 
 print("Bienvenue dans la récupération des données du site openfoodfact\n"
       "La récupération des catégories et des produits peut prendre plusieurs heures\n"
