@@ -1,9 +1,7 @@
-# coding: utf8
 import pickle
 
 import pymysql
-from sqlalchemy import create_engine, MetaData
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from packages.databases import base
 from packages.functions import road_os_path
@@ -51,10 +49,10 @@ class Database():
 
     def connect_databases(self):
         """
-        :connect: pymsql.connect creates the object "connect" for database connect_databases
-        :return: Returns a dictionary with the type of error that prevents the connect_databases. Either False if there is no error
-        :exception: add string in the dictionary "result_connection" with a value that I get back to give the error type
-        :rtype: dict | dict
+        :connect: pymsql.connect creates the object "connect" for database connect_databases :return: Returns a
+        dictionary with the type of error that prevents the connect_databases. Either False if there is no error
+        :exception: add string in the dictionary "result_connection" with a value that I get back to give the error
+        type :rtype: dict | dict
         """
         try:
 
@@ -68,8 +66,9 @@ class Database():
             self.result_connection["error"] = False
             self.connect.close()
             self.engine = create_engine(
-                "mysql+pymysql://{username}:{password}@{host}:{port}/{dbName}?charset=utf8&use_unicode=1"
-                    .format(username=self.user, password=self.password, host=self.host, port=self.port, dbName=self.db))
+                "mysql+pymysql://{username}:{password}@{host}:{port}/{dbName}?charset={charset}&use_unicode=1"
+                    .format(username=self.user, password=self.password, host=self.host, port=self.port, dbName=self.db
+                            ,charset=self.charset))
             self.Base = base.Base
             self.Base.metadata.bind = self.engine
             DBSession = sessionmaker(bind=self.engine)
@@ -88,21 +87,10 @@ class Database():
     @property
     def get_result_connection(self):
 
-        """
-
-        :return: returns the response of the encapsulated connect_databases test
-        :rtype: dict
-        """
         return self.result_connection
 
     def add_parameter(self, dic_parameters):
-        """
 
-        :param dic_parameters:
-        :type dic_parameters:
-        :return:
-        :rtype:
-        """
         self.file = open(road_os_path("packages", "databases", "database_info"), 'bw')
         self.info_connection = {}
         if "host" in dic_parameters:
@@ -118,19 +106,18 @@ class Database():
         if "port" in dic_parameters:
             self.port = dic_parameters["port"]
         self.info_connection = {"host": self.host, "user": self.user, "password": self.password, "db": self.db,
-                                "charset": self.charset,
-                                "port": self.port}
+                                "charset": self.charset,"port": self.port}
         self.connect_databases()
-        if self.result_connection["error"] == False:
+        if self.result_connection["error"] is False:
             add_info_connection = pickle.Pickler(self.file)
             add_info_connection.dump(self.info_connection)
             self.file.close()
 
-    def if_exist_table(self,*list_tables):
+    def if_exist_table(self, *list_tables):
 
         check_is_true = []
         for table in list_tables:
-            check_is_true.append(self.engine.dialect.has_table(self.engine,table))
+            check_is_true.append(self.engine.dialect.has_table(self.engine, table))
         return check_is_true
 
     def drop_table(self):
@@ -138,7 +125,6 @@ class Database():
 
     def create_table(self):
         self.Base.metadata.create_all(self.engine)
+
     def close_databases(self):
         self.connect.close()
-
-

@@ -13,17 +13,17 @@ def add_information_connection():
 
         if connection.result_connection["error"] == "hostname or password" or connection.result_connection[
             "error"] == "first":
-            info_connection["host"] = str(input("enter the hostname of the databases: "))
+            info_connection["host"] = str(input("entrer l'adresse ip ou le hostname de la base de données: "))
         if connection.result_connection["error"] == "username" or connection.result_connection["error"] == "first":
-            info_connection["user"] = input("enter the username of the databases: ")
+            info_connection["user"] = input("entrer votre nom d'utilisateur de la base de données: ")
         if connection.result_connection["error"] == "password" or connection.result_connection["error"] == "first":
-            info_connection["password"] = input("enter the password of the databases: ")
+            info_connection["password"] = input("entrer le password utilisé de la base de données: ")
         if connection.result_connection["error"] == "database" or connection.result_connection["error"] == "first":
-            info_connection["db"] = input("enter the db name of the databases: ")
+            info_connection["db"] = input("enter le nom de la table de la base de données: ")
         if connection.result_connection["error"] == "first":
-            info_connection["charset"] = str(input("enter the charset used (default=utf8): ") or "utf8mb4")
+            info_connection["charset"] = str(input("entrer le charset utilisé par la base de données  (défaut=utf8): ") or "utf8")
         if connection.result_connection["error"] == "hostname or password" or connection.result_connection[
             "error"] == "first":
-            info_connection["port"] = int(input("enter the port used (default=3306): ") or 3306)
+            info_connection["port"] = int(input("entrer le port utilisé par la base de données (défaut=3306): ") or 3306)
         connection.add_parameter(info_connection)
     print("Connexion à la base de données réussie")

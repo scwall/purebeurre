@@ -14,7 +14,7 @@ except:
     sys.exit('Veuillez relancer main.py')
 if (lambda major, minor: major == 3 and minor >= 5)(sys.version_info.major,
                                                     sys.version_info.minor) is False:
-    sys.exit('Vous utiliser une mauvaise version de python, version demandée python >= 3.5')
+    sys.exit('Vous utilisez une mauvaise version de python, version demandée python >= 3.5')
 # Connection to the database and test if connection connection information is correct
 connection = Database()
 if connection.result_connection["error"] is not False:
@@ -27,24 +27,23 @@ main_menu = True
 command_list = ["!#", "!>", "!<", "!1", "!0", "!@", ""]
 # Test if the tables is exist
 if False in connection.if_exist_table("categories", "link_category_product", "products", "save_products"):
-    print("Vous n'avez pas utiliser le script de création de la base de données\n")
-    print("Veuillez exécuter le script de création de la base de données\n"
+    print("Vous n'avez pas utilisé le script de création de la base de données\n")
+    print("veuillez exécuter le script de création de la base de données\n"
           "ou lancer directement le fichier  recovery.py")
-    sys.exit("Base de donnée inexistante ")
+    sys.exit("Base de données inexistante ")
 already_saved_categories = CategoriesQuery.get_categories_count()
 already_saved_products = ProductsQuery.get_products_count()
 # Test if the tables contain data
 if already_saved_categories < 100 or already_saved_products < 100:
-    print("Vous n'avez pas récupérer (ou partiellement) les catégories et les produits \n "
-          "Veuillez executer le fichier recovery.py")
-    sys.exit("Aucune (ou partiellement)  des categories, et produits dans la base de données ")
+    print("Vous n'avez pas récupéré (ou partiellement) les catégories et les produits \n "
+          "veuillez executer le fichier recovery.py")
+    sys.exit("Aucune (ou partiellement)  categories, et produits dans la base de données ")
 
 while main_menu is True:
     clr()
     print("Bienvenue cette application qui va vous permettre de trouver\n"
           "une alternative à un produit sélectionné\n"
-          "Chaque produit à un nutriscore de la lettre D à la lettre A, la lettre A étant le meilleur et la lettre D "
-          "le moins bon\n "
+          "chaque produit à un nutriscore de la lettre D à la lettre A, la lettre A étant meilleur et la lettre D \n"
           "celui-ci sera noté à coté de 'Grade de nutrition'")
     print("Pour consulter les produits et les catégories, '1'")
     print("Pour consulter les produits enregistrer, '2'")

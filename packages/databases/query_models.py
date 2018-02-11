@@ -35,10 +35,6 @@ class CategoriesQuery(ConnectionQuery):
     def get_categories_count(cls):
         return cls.connection.connect.query(Categories).count()
 
-    @classmethod
-    def delete_category(cls, id):
-        pass
-
 
 class ProductsQuery(ConnectionQuery):
 
@@ -73,10 +69,6 @@ class ProductsQuery(ConnectionQuery):
     def get_products_count(cls):
         return cls.connection.connect.query(Products).count()
 
-    @classmethod
-    def delete_product(cls, id):
-        pass
-
 
 class SaveProductsQuery(ConnectionQuery):
     @classmethod
@@ -87,7 +79,3 @@ class SaveProductsQuery(ConnectionQuery):
     @classmethod
     def get_save_count(cls):
         return cls.connection.connect.query(SaveProducts).count()
-
-    @classmethod
-    def delete_product(cls, id):
-        pass

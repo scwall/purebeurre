@@ -18,15 +18,15 @@ def install_all_packages(modules_to_try):
             elif euid != 0:
                 root = True
                 while root is True:
-                    print("Il manque certaines librairies pour executer le programme, vous devez le relancer \n"
-                          " en root pour que pip puisse les installer, si vous utilisez un environment virtuel (virtualenv)\n"
+                    print("Il manque certaines librairies pour exécuter le programme, vous devez le relancer \n"
+                          "en root pour que pip puisse les installer, si vous utilisez un environment virtuel (virtualenv)\n"
                           "Confirmer par !1 sinon !0")
                     command = input("> ")
                     if command == "!1":
                         pip.main(['install', module])
                         root = False
                     if command == "!0":
-                        sys.exit("Veillez relancer le programme en root")
+                        sys.exit("Veuillez relancer le programme en root")
             else:
                 pip.main(['install', module])
 

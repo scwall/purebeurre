@@ -1,4 +1,3 @@
-# coding: utf8
 try:
     import sys
     import requests
@@ -14,15 +13,15 @@ except:
     sys.exit('Veuillez relancer recovery.py')
 if (lambda major, minor: major == 3 and minor >= 5)(sys.version_info.major,
                                                     sys.version_info.minor) is False:
-    sys.exit('Vous utiliser une mauvaise version de python, version demandée python >= 3.5')
-
+    sys.exit('Vous utilisez une mauvaise version de python, version demandée python >= 3.5')
+command_list = ["!1", "!0"]
 print("Bienvenue dans la récupération des données du site openfoodfact\n"
-      "La récupération des catégories et des produits peut prendre plusieurs heures\n"
-      "Veuillez ne pas éteindre votre ordinateur pendant la récupération\n"
-      "Souhaitez-vous récupérer les données o/n ?\n"
+      "la récupération des catégories et des produits peut prendre plusieurs heures\n"
+      "veuillez ne pas éteindre votre ordinateur pendant la récupération\n"
+      "Souhaitez-vous récupérer les données oui : !1 non: !0 ?\n"
       )
 command = input("> ")
-if command.lower() == "o":
+if command.lower() == "!1":
     clr()
     print("Connexion à la base de données")
     connection = Database()
@@ -43,22 +42,25 @@ if command.lower() == "o":
     if already_saved_categories > 1:
         already_saved_boucle = True
         while already_saved_boucle is True:
-            print("vous semblez avoir déjà récupéré les données sur openfoodfact\n"
-                  "il y a actuellement " + str(already_saved_categories) + " Categories et "+ str(already_saved_products) + " produits dans votre base de données")
+            print("Vous semblez avoir déjà récupéré les données sur openfoodfact\n"
+                  "il y a actuellement " + str(already_saved_categories) + " Categories et " + str(
+                already_saved_products) + " produits dans votre base de données")
             print(
-                "Si l'application à planté ou qu'il y a eu une erreur "
-                "et que vous voulez réexecuter la récupération\n"
-                "veuillez confirmer par 'OUI' Pour recommencer depuis le début ou 'NON' (en majuscule) pour annuler\n")
+                "Si l'application à planté ou qu'il y a eu une erreur et que vous voulez ré-éxecuter la récupération\n"
+                "veuillez confirmer par '!1' Pour recommencer depuis le début ou '!0' pour annuler\n")
 
             command = input("> ")
-            if command == 'OUI':
+            if command == '!1':
                 connection.connect.close()
                 connection.drop_table()
                 connection.create_table()
                 already_saved_boucle = False
 
-            if command == 'NON':
+            if command == '!0':
                 sys.exit("Annulation")
+            if command.isdigit() is False and command not in command_list:
+                print("Vous avez inséré un caractère illégal,veuillez insérer un chiffre ou une commande")
+                time.sleep(2)
 
     count = 0
     total_count = 0
@@ -119,18 +121,20 @@ if command.lower() == "o":
                 except KeyError:
                     continue
 
-            print("Recuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
+            print("Récuperation des produits, ", percentage_calculation(count, total_count), "%", " d'effectué(s)",
                   end='\r')
             sys.stdout.flush()
             count += 1
-        connection.connect.commit()
         number_page += 1
     connection.connect.commit()
 
-    print("Récupération des produits réussi\n"""
-          "Vous avez récupéré la totalité des produits et catégories\n"
-          "Vous pouvez utiliser le programme principal pour consulter les produits"
+    print("Récupération des produits réussis\n"""
+          "vous avez récupéré la totalité des produits et catégories\n"
+          "vous pouvez utiliser le programme principal"
           )
 
-else:
-    print("Récupération annulée")
+if command == "!0":
+    sys.exit("Récupération annulée")
+if command.isdigit() is False and command not in command_list:
+    print("Vous avez inséré un caractère illégal,veuillez insérer un chiffre ou une commande")
+    time.sleep(2)

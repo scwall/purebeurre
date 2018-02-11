@@ -17,9 +17,9 @@ The software will analitics a database for compare and  find, some products of s
 ```
 Install python
 Install mariadb on the computer
-Launch the script create_db_subsitution.sql for création the database
+Launch the script create_db_subsitution.sql for création the database or launch script recovery.py immediately 
 Launch the script "recovery.py" for the recovery the data of site openfoodfact and wait it recovery all data
-
+Launch the script "main.py" for consult the products and categories
 
 ```
 
@@ -42,6 +42,7 @@ The program will then propose you a substitute, its description and a store wher
 
 You will then have the possibility to save your choice and do a new search or return to the main menu to consult for example to find your saved substitute foods, to start a new search, or simply to leave the menu. 
 
+The user will be able to save his or her product, which will be registered to retrieve it later.
 
 
 
@@ -51,10 +52,6 @@ You will then have the possibility to save your choice and do a new search or re
 * [mariadb](https://mariadb.org/) - The database
 * [api openfoodfacts](https://fr.openfoodfacts.org/) - Used api , for to fill database
 
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/scwall/purebeurre/tags). 
 
 ## Authors
 

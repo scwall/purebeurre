@@ -1,4 +1,4 @@
-# coding: utf8
+
 
 from sqlalchemy import Column, ForeignKey, INTEGER, DATETIME, func
 from sqlalchemy import VARCHAR, TEXT, CHAR
